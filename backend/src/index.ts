@@ -1,11 +1,13 @@
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
 import express from "express"
+import cors from "cors"
 import { Baseprompt, prompt } from "./prompt";
 import { basePrompt } from "./Baseprompt";
 const app = express ()
 dotenv.config()
 app.use(express.json())
+app.use(cors())
 
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });

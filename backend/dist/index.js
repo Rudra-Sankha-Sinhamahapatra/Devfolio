@@ -16,11 +16,13 @@ exports.getGroqChatCompletion = getGroqChatCompletion;
 const groq_sdk_1 = __importDefault(require("groq-sdk"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const prompt_1 = require("./prompt");
 const Baseprompt_1 = require("./Baseprompt");
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 app.use(express_1.default.json());
+app.use((0, cors_1.default)());
 const groq = new groq_sdk_1.default({ apiKey: process.env.GROQ_API_KEY });
 function getGroqChatCompletion(messages) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -41,7 +43,7 @@ function getGroqChatCompletion(messages) {
                     }
                 ],
                 model: "deepseek-r1-distill-llama-70b",
-                max_tokens: 8000,
+                max_tokens: 10000,
             }).asResponse();
             // Read the response body as JSON
             const data = yield response.json();
