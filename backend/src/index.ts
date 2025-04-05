@@ -70,8 +70,8 @@ app.post ("/chat",async (req,res)=>{
 })
 
 app.get('/getaccesstoken',async(req,res)=>{
-  const clientId="Ov23li9skt96UJTmPFoN"
-  const clientsecret="f760bdd86c5134831b193a679e78a20057d045b6"
+  const clientId=process.env.clientId
+  const clientsecret=process.env.clientsecret
   console.log(req.query.code)
 
   const params = "?client_id="+clientId+"&client_secret="+clientsecret+"&code="+req.query.code
