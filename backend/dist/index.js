@@ -72,6 +72,37 @@ app.post("/chat", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ message: "Error fetching completion:", error });
     }
 }));
+app.get('/getaccesstoken', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const clientId = "Ov23li9skt96UJTmPFoN";
+    const clientsecret = "f760bdd86c5134831b193a679e78a20057d045b6";
+    console.log(req.query.code);
+    const params = "?client_id=" + clientId + "&client_secret=" + clientsecret + "&code=" + req.query.code;
+    yield fetch("https://github.com/login/oauth/access_token" + params, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json"
+        }
+    }).then((response) => response.json()).then((data) => {
+        console.log(data);
+        res.json(data);
+    });
+}));
+app.get("/getrepo", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const token = req.get("Authorization");
+    console.log(token);
+    yield fetch("https://api.github.com/user/repos", {
+        method: "GET",
+        headers: {
+            "Authorization": ` ${token}`,
+            "Accept": "application/json"
+        }
+    }).then((response) => response.json()).then((data) => {
+        console.log(data);
+        res.json(data);
+    }).catch((err) => {
+        console.log(err);
+    });
+}));
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
 });
