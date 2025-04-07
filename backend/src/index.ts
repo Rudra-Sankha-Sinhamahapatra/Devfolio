@@ -4,13 +4,17 @@ import express from "express"
 import cors from "cors"
 import { Baseprompt, prompt } from "./prompt";
 import { basePrompt } from "./Baseprompt";
+import { chatHandler } from "./controllers/chat";
+import { getAccessToken } from "./controllers/getAccessToken";
+import { getRepo } from "./controllers/getRepo";
+import { GROQ_API_KEY } from "./config/config";
 const app = express ()
 dotenv.config()
 app.use(express.json())
 app.use(cors())
 
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: GROQ_API_KEY });
 
 interface GroqCompletionResponse {
   choices?: {
@@ -42,9 +46,9 @@ export async function getGroqChatCompletion(messages:string): Promise<GroqComple
       max_tokens:10000,
       
     }).asResponse();
-    // Read the response body as JSON
+    
     const data = await response.json();
-    // console.log("Parsed Response:", data);  // Log the parsed response
+
 
     return data as GroqCompletionResponse;
   } catch (error) {
@@ -54,55 +58,11 @@ export async function getGroqChatCompletion(messages:string): Promise<GroqComple
 }
 
 
-app.post ("/chat",async (req,res)=>{
-  const {messages} = req.body;
-  try {
-    const chatCompletion = await getGroqChatCompletion(messages);
-    
-    if (chatCompletion.choices && chatCompletion.choices[0]?.message?.content) {
-      res.json({message: chatCompletion.choices[0].message.content});
-    } else {
-      res.json({message:"No valid response received. Response object may be malformed."});
-    }
-  } catch (error) {
-    res.status(500).json({message:"Error fetching completion:", error});
-  }
-})
+app.post ("/chat",chatHandler);
 
-app.get('/getaccesstoken',async(req,res)=>{
-  const clientId=process.env.clientId
-  const clientsecret=process.env.clientsecret
-  console.log(req.query.code)
+app.get('/getaccesstoken',getAccessToken);
 
-  const params = "?client_id="+clientId+"&client_secret="+clientsecret+"&code="+req.query.code
-  await fetch("https://github.com/login/oauth/access_token"+params,{
-      method:"POST",
-      headers:{
-          "Accept":"application/json"
-      }
-  }).then((response)=>response.json()).then((data)=>{
-      console.log(data)
-      res.json(data)
-  })
-
-})
-
-app.get("/getrepo",async (req,res)=>{
-  const token=req.get("Authorization")
-  console.log(token)
-  await fetch("https://api.github.com/user/repos",{
-      method:"GET",
-      headers:{
-          "Authorization":` ${token}`,
-          "Accept":"application/json"
-      }
-  }).then((response)=>response.json()).then((data)=>{
-      console.log(data)
-      res.json(data)
-  }).catch((err)=>{
-      console.log(err)
-  })
-})
+app.get("/getrepo",getRepo);
 
 app.listen(3000,()=>{
   console.log("Server is running on port 3000")
